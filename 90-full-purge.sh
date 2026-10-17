@@ -7,6 +7,25 @@ log "FULL PURGE mode. DRY_RUN=$DRY_RUN"
 [[ "$DRY_RUN" == "1" ]] && log "DRY: destructive steps print only. Set DRY_RUN=0 to execute."
 
 MGMT_IP="${MGMT_IP:-192.168.1.100}"
+
+# --- Placeholder guard: refuse destructive run with default/unsafe config ---
+if [[ "$DRY_RUN" != "1" ]]; then
+  HITS=()
+  [[ "$MGMT_IP" == "192.168.1.100" ]] && \
+    HITS+=("MGMT_IP is still the default 192.168.1.100 — this would firewall you out")
+  if [[ "${ALLOWED_SSH_KEYS:-}" && ! -f "${ALLOWED_SSH_KEYS:-}" ]]; then
+    HITS+=("ALLOWED_SSH_KEYS ($ALLOWED_SSH_KEYS) does not exist — SSH lockout risk")
+  fi
+  if (( ${#HITS[@]} )); then
+    warn "REFUSING TO RUN — unsafe placeholder/default values:"
+    for h in "${HITS[@]}"; do warn "  - $h"; done
+    warn "Fix bt.conf (./detect-and-configure.sh or ./fix-placeholders.sh), then rerun."
+    warn "To override on purpose: ALLOW_DEFAULTS=1 DRY_RUN=0 $0"
+    [[ "${ALLOW_DEFAULTS:-0}" == "1" ]] || die "Aborting to protect you from lockout."
+    warn "ALLOW_DEFAULTS=1 set — proceeding despite the above. You asked for it."
+  fi
+fi
+
 PWFILE="/root/.bt_newpw_$RUN_TS"
 if [[ "$DRY_RUN" != "1" ]]; then : > "$PWFILE"; chmod 600 "$PWFILE"; fi
 

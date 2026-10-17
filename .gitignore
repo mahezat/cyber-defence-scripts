@@ -1,0 +1,13 @@
+# Runtime output — never commit
+*.log
+blueteam_quarantine/
+blueteam_backups/
+.bt_newpw_*
+MANIFEST.sha256
+
+# Real config and secrets — commit the .example instead
+bt.conf
+allowed_ssh_keys.txt
+*.key
+*.pem
+id_*

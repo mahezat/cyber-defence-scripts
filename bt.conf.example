@@ -1,0 +1,39 @@
+# Blue team config TEMPLATE — copy to bt.conf and edit per box.
+#   cp bt.conf.example bt.conf
+# The real bt.conf is gitignored so box-specific values never hit GitHub.
+#
+# Every value uses ${VAR:-default} so an env/CLI override (e.g.
+# `DRY_RUN=0 ./90-full-purge.sh`) is NOT clobbered when this file is sourced.
+
+BT_DIR="${BT_DIR:-/opt/blueteam}"
+QUARANTINE="${QUARANTINE:-/root/blueteam_quarantine}"
+BACKUP_DIR="${BACKUP_DIR:-/root/blueteam_backups}"
+LOG_FILE="${LOG_FILE:-/var/log/blueteam.log}"
+
+# 1 = print only. Set to 0 to apply. Env/CLI override respected.
+DRY_RUN="${DRY_RUN:-1}"
+
+# External trusted static binaries. Likely empty when cloning from GitHub.
+TRUSTED_TOOLS="${TRUSTED_TOOLS:-/mnt/trusted_tools}"
+
+# Optional scp target for pulling logs off-box. Blank = reminder only.
+OFFBOX_TARGET="${OFFBOX_TARGET:-}"
+
+# DNS (RHEL-style defaults; apt branch overrides paths at runtime)
+DNS_SERVICE="${DNS_SERVICE:-named}"
+DNS_CONF="${DNS_CONF:-/etc/named.conf}"
+DNS_ZONE_DIR="${DNS_ZONE_DIR:-/var/named}"
+GOLDEN_DNS="${GOLDEN_DNS:-/root/blueteam_backups/dns_golden}"
+
+# SSH
+ALLOWED_SSH_KEYS="${ALLOWED_SSH_KEYS:-/opt/blueteam/allowed_ssh_keys.txt}"
+
+# Management IP allowed through isolation. SET THIS PER BOX.
+MGMT_IP="${MGMT_IP:-192.168.1.100}"
+
+# Services the scoring engine checks — NEVER stopped. Edit per box.
+SCORED_SERVICES="${SCORED_SERVICES:-sshd named httpd}"
+
+# Reinstall candidates (filtered to installed-only at runtime; extras are harmless).
+REINSTALL_PACKAGES_RPM="${REINSTALL_PACKAGES_RPM:-coreutils procps-ng util-linux openssh-server openssh-clients openssl pam sudo systemd glibc e2fsprogs kmod shadow-utils cronie iptables findutils bash iproute bind bind-utils}"
+REINSTALL_PACKAGES_DEB="${REINSTALL_PACKAGES_DEB:-coreutils procps util-linux openssh-server openssh-client openssl libpam-modules sudo systemd libc-bin e2fsprogs kmod passwd cron iptables findutils bash iproute2 bind9 bind9-utils}"
